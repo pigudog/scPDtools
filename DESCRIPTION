@@ -1,0 +1,109 @@
+Package: scPDtools
+Type: Package
+Title: Single Cell Pipeline with R
+Version: 0.1.0
+Author: pigudogzyy
+Maintainer: pigudogzyy <pigudogzyy@gmail.com>
+Description: An Single-Cell Pipeline designed to facilitate comprehensive analysis and exploration of single-cell data with R (A truncated and integrated version)
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: True
+LazyDataCompression: xz
+Depends:
+    R (>= 4.1.0)
+biocViews: SingleCell, GeneExpression, SingleCellWorkflow, Visualization, ShinyApps
+Imports:
+    AnnotationDbi,
+    BiocParallel,
+    biomaRt,
+    ComplexHeatmap (>= 2.13.0),
+    circlize,
+    clusterProfiler,
+    data.table,
+    dplyr (>= 1.1.0),
+    ggnewscale,
+    ggplot2 (>= 3.4.0),
+    ggtree (>= 3.6.1),
+    ggrepel,
+    ggforce,
+    GO.db,
+    GOSemSim,
+    grDevices,
+    grid,
+    gridGraphics,
+    gtable,
+    gtools,
+    graphics,
+    igraph,
+    intrinsicDimension,
+    Matrix (>= 1.5-3),
+    methods,
+    mgcv,
+    org.Hs.eg.db,
+    org.Mm.eg.db,
+    parallelDist,
+    patchwork,
+    png,
+    proxyC,
+    R.cache,
+    R.utils,
+    Rcpp,
+    reshape2,
+    reticulate,
+    rlang,
+    Signac,
+    Seurat (>= 4.2.0),
+    SeuratObject,
+    scales,
+    simplifyEnrichment (>= 1.5.2),
+    slingshot,
+    uwot
+Remotes:
+    jokergoo/ComplexHeatmap,
+    jokergoo/simplifyEnrichment,
+    YuLab-SMU/ggtree
+Suggests:
+    AUCell,
+    concaveman,
+    covr,
+    destiny,
+    devtools,
+    future,
+    ggupset,
+    ggsignif,
+    ggwordcloud,
+    ggVennDiagram,
+    glmGamPoi,
+    hexbin,
+    htmlwidgets,
+    httr,
+    HDF5Array,
+    MASS,
+    Mfuzz,
+    metR,
+    monocle,
+    NMF,
+    plotly,
+    promises,
+    RcppParallel,
+    RcppML,
+    renv,
+    rhdf5,
+    rliger,
+    S4Vectors,
+    scattermore,
+    scds,
+    scDblFinder,
+    scmap,
+    shiny (>= 1.6.0),
+    styler,
+    sva,
+    SingleR,
+    ragg,
+    testthat (>= 3.0.0),
+    UCell,
+    umap
+LinkingTo: Rcpp
+RoxygenNote: 7.2.3
+Config/testthat/edition: 1
+URL: https://github.com/pigudog/scPDtools
