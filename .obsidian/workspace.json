@@ -18,6 +18,16 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "3370d126924b51d5",
+            "type": "leaf",
+            "state": {
+              "type": "image",
+              "state": {
+                "file": "README/Pasted image 20230922144615.png"
+              }
+            }
           }
         ]
       }
@@ -146,6 +156,9 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "bdf9141666d4cb6c",
-  "lastOpenFiles": []
+  "active": "d3a1c30dc49339a9",
+  "lastOpenFiles": [
+    "README/Pasted image 20230922144615.png",
+    "README.md"
+  ]
 }

@@ -57,7 +57,7 @@ CellDimPlot(
   theme_use = "theme_blank"
 )
 ```
-![](Pasted%20image%2020230923145416.png)
+![](README/Pasted%20image%2020230923145416.png)
 
 ```r
 ## feature
@@ -108,7 +108,7 @@ ht <- GroupHeatmap(
 )
 print(ht$plot)
 ```
-![](Pasted%20image%2020230923145700.png)
+![](README/Pasted%20image%2020230923145700.png)
 
 # 2. differntial expression analysis
 ## RunDEtest
@@ -217,9 +217,9 @@ VolcanoPlot(srt = mac_scp, group_by = "CellType",
                         palcolor = NULL)
 ```
 
-![](Pasted%20image%2020230922144615.png)
+![](README/Pasted%20image%2020230922144615.png)
 
-![](Pasted%20image%2020230922211814.png)
+![](README/Pasted%20image%2020230922211814.png)
 
 两次尝试中，都发现findallmarker得到的gene更少，所以建议使用findmarker
 
@@ -251,7 +251,7 @@ ht <- FeatureHeatmap(
 )
 print(ht$plot)
 ```
-![](Pasted%20image%2020230923160111.png)
+![](README/Pasted%20image%2020230923160111.png)
 
 # 3. Enrichment 
 ```r
@@ -281,9 +281,9 @@ EnrichmentPlot(
   plot_type = "bar"
 )
 ```
-![](Pasted%20image%2020230923160554.png)
+![](README/Pasted%20image%2020230923160554.png)
 
-![](Pasted%20image%2020230923160625.png)
+![](README/Pasted%20image%2020230923160625.png)
 
 # 4. Dynamic heatmap
 ```r
@@ -293,14 +293,14 @@ mac_scp <- RunSlingshot(srt = mac_scp, group.by = "CellType", reduction = "UMAP"
 FeatureDimPlot(mac_scp, features = c("Lineage1","palantir_pseudotime","palantir_entropy"), 
                reduction = "UMAP", theme_use = "theme_blank",pt.size = 3)
 ```
-![](Pasted%20image%2020230923161021.png)
+![](README/Pasted%20image%2020230923161021.png)
 
 ```r
 CellDimPlot(mac_scp, group.by = "CellType", reduction = "UMAP", 
             lineages = c("Lineage1","palantir_pseudotime","palantir_entropy"), 
             lineages_span = 1)
 ```
-![](Pasted%20image%2020230923161150.png)
+![](README/Pasted%20image%2020230923161150.png)
 
 
 ```r
@@ -326,4 +326,4 @@ ht <- DynamicHeatmap(
 )
 print(ht$plot)
 ```
-![](Pasted%20image%2020230923163303.png)
+![](README/Pasted%20image%2020230923163303.png)
