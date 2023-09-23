@@ -32,7 +32,7 @@ RunDEtest(
   slot = "data",
   assay = NULL,
   BPPARAM = BiocParallel::bpparam(),
-  seed = 11,
+  seed = 1314,
   verbose = TRUE,
   ...
 )

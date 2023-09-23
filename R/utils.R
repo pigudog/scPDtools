@@ -1,4 +1,4 @@
-#' Prepare SCP python environment
+#' Prepare scPDtools python environment
 #'
 #' @param python_version The version of python to install. Default is \code{3.8}
 #' @param miniconda_repo  Repositories for miniconda. Default is \code{https://repo.anaconda.com/miniconda}
@@ -34,7 +34,7 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
     python_path <- conda_python(conda = conda, envname = envname)
     installed_python_version <- reticulate:::python_version(python_path)
     if (installed_python_version < numeric_version("3.7.0") || installed_python_version >= numeric_version("3.10.0")) {
-      stop("The python version in the installed SCP environment does not match the requirements. You need to recreate the SCP environment.")
+      stop("The python version in the installed scPDtools environment does not match the requirements. You need to recreate the scPDtools environment.")
     }
   } else {
     force <- TRUE
@@ -80,7 +80,7 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
       envs_dir <- reticulate:::conda_info(conda = conda)$envs_dirs[1]
     }
     if (python_version < numeric_version("3.7.0") || python_version >= numeric_version("3.10.0")) {
-      stop("SCP currently only support python version 3.7-3.9!")
+      stop("scPDtools currently only support python version 3.7-3.9!")
     }
     python_path <- reticulate::conda_create(conda = conda, envname = envname, python_version = python_version)
     env_path <- paste0(envs_dir, "/", envname)
@@ -89,9 +89,9 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
       print(reticulate:::conda_info(conda = conda))
       print(reticulate::conda_list(conda = conda))
       stop(
-        "Unable to find SCP environment under the expected path: ", env_path, "\n",
+        "Unable to find scPDtools environment under the expected path: ", env_path, "\n",
         "conda: ", conda, "\n",
-        "SCP python: ", python_path, "\n"
+        "scPDtools python: ", python_path, "\n"
       )
     }
   }
@@ -109,10 +109,10 @@ PrepareEnv <- function(conda = "auto", miniconda_repo = "https://repo.anaconda.c
 
   pyinfo <- utils::capture.output(reticulate::py_config())
   pyinfo_mesg <- c(
-    "====================== SCP conda environment ======================",
+    "====================== scPDtools conda environment ======================",
     paste0("conda: ", conda),
     paste0("environment: ", paste0(envs_dir, "/", get_envname())),
-    "======================== SCP python config ========================",
+    "======================== scPDtools python config ========================",
     pyinfo,
     "==================================================================="
   )
@@ -270,7 +270,7 @@ exist_Python_pkgs <- function(packages, envname = NULL, conda = "auto") {
 #'
 #' @param packages A character vector, indicating package names which should be installed or removed. Use \code{⁠<package>==<version>}⁠ to request the installation of a specific version of a package.
 #' @param envname The name of a conda environment.
-#' @param conda The path to a conda executable. Use \code{"auto"} to allow SCP to automatically find an appropriate conda binary.
+#' @param conda The path to a conda executable. Use \code{"auto"} to allow scPDtoolsDtools to automatically find an appropriate conda binary.
 #' @param force Whether to force package installation. Default is \code{FALSE}.
 #' @param pip Whether to use pip for package installation. By default, packages are installed from the active conda channels.
 #' @param pip_options An optional character vector of additional command line arguments to be passed to \code{pip}. Only relevant when \code{pip = TRUE}.
@@ -279,7 +279,7 @@ exist_Python_pkgs <- function(packages, envname = NULL, conda = "auto") {
 #' @examples
 #' check_Python(packages = c("bbknn", "scanorama"))
 #' \dontrun{
-#' check_Python(packages = "scvi-tools==0.20.0", envname = "SCP_env", pip_options = "-i https://pypi.tuna.tsinghua.edu.cn/simple")
+#' check_Python(packages = "scvi-tools==0.20.0", envname = "scPDtools_env", pip_options = "-i https://pypi.tuna.tsinghua.edu.cn/simple")
 #' }
 #' @export
 check_Python <- function(packages, envname = NULL, conda = "auto", force = FALSE, pip = TRUE, pip_options = character(), ...) {
@@ -347,7 +347,7 @@ get_envname <- function(envname = NULL) {
   if (is.character(envname)) {
     envname <- envname
   } else {
-    envname <- getOption("SCP_env_name", default = "SCP_env")
+    envname <- getOption("scPDtools_env_name", default = "scPDtools_env")
   }
   return(envname)
 }
@@ -658,7 +658,6 @@ unnest <- function(data, cols, keep_empty = FALSE) {
 
 #' Attempts to turn a dgCMatrix into a dense matrix
 #' @param matrix A dgCMatrix
-#' @useDynLib SCP
 #' @export
 as_matrix <- function(matrix) {
   if (!inherits(matrix, "dgCMatrix")) {

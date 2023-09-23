@@ -1311,25 +1311,46 @@ FindConservedMarkers2 <- function(object, grouping.var, ident.1, ident.2 = NULL,
 #' @importFrom stats p.adjust
 #' @export
 #'
-RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1 = NULL, cells2 = NULL, features = NULL,
+RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL,
+                      cells1 = NULL, cells2 = NULL, features = NULL,
                       markers_type = c("all", "paired", "conserved", "disturbed"),
-                      grouping.var = NULL, meta.method = c("maximump", "minimump", "wilkinsonp", "meanp", "sump", "votep"),
-                      test.use = "wilcox", only.pos = TRUE, fc.threshold = 1.5, base = 2, pseudocount.use = 1, mean.fxn = NULL,
-                      min.pct = 0.1, min.diff.pct = -Inf, max.cells.per.ident = Inf, latent.vars = NULL,
+                      grouping.var = NULL,
+                      meta.method = c("maximump", "minimump", "wilkinsonp", "meanp", "sump", "votep"),
+                      test.use = "wilcox",
+                      only.pos = TRUE,
+                      fc.threshold = 1.5,
+                      base = 2,
+                      pseudocount.use = 1,
+                      mean.fxn = NULL,
+                      min.pct = 0.1, min.diff.pct = -Inf,
+                      max.cells.per.ident = Inf, latent.vars = NULL,
                       min.cells.feature = 3, min.cells.group = 3,
-                      norm.method = "LogNormalize", p.adjust.method = "bonferroni", slot = "data", assay = NULL,
-                      BPPARAM = BiocParallel::bpparam(), seed = 11, verbose = TRUE, ...) {
+                      norm.method = "LogNormalize",
+                      p.adjust.method = "bonferroni",
+                      slot = "data",
+                      assay = NULL,
+                      BPPARAM = BiocParallel::bpparam(),
+                      seed = 1314, # 我们设置seed等于1314
+                      verbose = TRUE, ...) {
   set.seed(seed)
   markers_type <- match.arg(markers_type)
   meta.method <- match.arg(meta.method)
+
+  # ！！！markers_type的参数
   if (markers_type %in% c("conserved", "disturbed")) {
     if (is.null(grouping.var)) {
       stop("'grouping.var' must be provided when finding conserved or disturbed markers")
     }
   }
+  # 确定使用的matrix的对象
   assay <- assay %||% DefaultAssay(srt)
 
+  # 这儿有一个 check_DataType函数需要添加
   status <- check_DataType(srt, slot = slot, assay = assay)
+
+  # 通过上面的check得到status
+  # slot的default值为data
+  # 这儿要去理解seurat包的数据结构问题
   if (slot == "counts" && status != "raw_counts") {
     stop("Data in the 'counts' slot is not raw counts.")
   }
@@ -1346,19 +1367,32 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       warning("Data in the 'data' slot is unknown. Please check the data type.")
     }
   }
+
+  # BiocParallel的一个基本目标是降低开发和使用执行并行计算的软件时所面临的复杂性。通过引入BiocParallelParam对象，
+  ## BiocParallel旨在为现有的并行基础设施提供一个统一的接口，使代码可以在不同的环境中轻松执行
   bpprogressbar(BPPARAM) <- TRUE
   bpRNGseed(BPPARAM) <- seed
 
+  # 时间记录
   time_start <- Sys.time()
+  # 当设置verbose（冗长的信息）=True时
+  # 这里看到我们可以设置线程实现平行运算
   if (verbose) {
     message(paste0("[", time_start, "] ", "Start DEtest"))
     message("Workers: ", bpworkers(BPPARAM))
   }
 
+  # fc.threshold = 1.5, 这个md有个函数禁止了我们使用小于1的值这是不合理的
+  # 我们改成提示warning
   if (fc.threshold < 1) {
-    stop("fc.threshold must be greater than or equal to 1")
+    # stop("fc.threshold must be greater than or equal to 1")
+    message("Warnings: fc.threshold should be greater than or equal to 1")
   }
 
+
+  # 下面这一步查看是否制定了细胞
+  # ||称为逻辑或(OR)运算符。取两个向量的第一个元素，如果其中一个为真，则给出真
+  # 我们似乎不太用得到指定我们的细胞观察，后续可以删去
   if (!is.null(cells1) || !is.null(group1)) {
     if (is.null(cells1)) {
       if (is.null(group_by)) {
@@ -1386,7 +1420,9 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       message("Find ", markers_type, " markers(", test.use, ") for custom cell groups...")
     }
 
+    # 我们来看一下markers_type的用法
     if (markers_type == "all") {
+      # 可以看到使用的是seurat包中的findmarkers
       markers <- FindMarkers(
         object = Assays(srt, assay), slot = slot,
         cells.1 = cells1,
@@ -1408,6 +1444,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         verbose = FALSE,
         ...
       )
+      # 对markes这个矩阵进行进一步的处理
       if (!is.null(markers) && nrow(markers) > 0) {
         markers[, "gene"] <- rownames(markers)
         markers[, "group1"] <- group1 %||% "group1"
@@ -1422,6 +1459,7 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         markers[, "test_group"] <- apply(MarkersMatrix, 1, function(x) {
           paste0(colnames(MarkersMatrix)[x > 0], collapse = ";")
         })[markers[, "gene"]]
+        # 存储在我们的seurat对象中的方式
         srt@tools[["DEtest_custom"]][[paste0("AllMarkers_", test.use)]] <- markers
         srt@tools[["DEtest_custom"]][["cells1"]] <- cells1
         srt@tools[["DEtest_custom"]][["cells2"]] <- cells2
@@ -1429,6 +1467,8 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         warning("No markers found.", immediate. = TRUE)
       }
     }
+    # 如果type是conserved
+    # FindConservedMarkers: Finds markers that are conserved between the groups
     if (markers_type == "conserved") {
       markers <- FindConservedMarkers2(
         object = srt, assay = assay, slot = slot,
@@ -1474,7 +1514,11 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
         warning("No markers found.", immediate. = TRUE)
       }
     }
+
+    # 内部又重新调用了我们的RunDEtest
     if (markers_type == "disturbed") {
+      # 指定的分组变量列中不属于 cells1 的细胞的值设置为缺失值，
+      # 可能是为了在分析中排除这些细胞的影响或处理缺失值。
       srt_tmp <- srt
       srt_tmp[[grouping.var, drop = TRUE]][setdiff(colnames(srt_tmp), cells1)] <- NA
       bpprogressbar(BPPARAM) <- FALSE
@@ -1550,9 +1594,11 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       ...
     )
 
+    # 开始查找细胞
     if (verbose) {
       message("Find ", markers_type, " markers(", test.use, ") among ", nlevels(cell_group), " groups...")
     }
+    # 如果是all使用findmarkers
     if (markers_type == "all") {
       AllMarkers <- bplapply(levels(cell_group), FUN = function(group) {
         cells.1 <- names(cell_group)[which(cell_group == group)]
@@ -1742,6 +1788,8 @@ RunDEtest <- function(srt, group_by = NULL, group1 = NULL, group2 = NULL, cells1
       }
     }
   }
+
+
   time_end <- Sys.time()
   if (verbose) {
     message(paste0("[", time_end, "] ", "DEtest done"))

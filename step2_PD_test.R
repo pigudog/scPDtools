@@ -1,6 +1,4 @@
-library("scPDtools")
-library(Seurat)
-library(BiocParallel)
+
 
 
 
@@ -17,14 +15,30 @@ greet <- c("morning", "night")
 who <- c("sun", "moon")
 param <- bpparam()
 original <- bpworkers(param)
-bpworkers(param) <- 4##设置并行的进程数
+bpworkers(param) <- 8##设置并行的进程数
 result <- bpmapply(fun, greet, who, BPPARAM = param)
 # BPPARAM = BiocParallel::bpparam()
 register(MulticoreParam(workers = 8, progressbar = TRUE))
 BiocParallel::bpparam()
 
-data("mac_menstrual")
-data("mac_anno")
+library(scPDtools)
+library(Seurat)
+library(BiocParallel)
+param <- bpparam()
+bpworkers(param) <- 8##设置并行的进程数
+BiocParallel::bpparam()
+# class: SnowParam
+# bpisup: FALSE; bpnworkers: 8; bptasks: 0; bpjobname: BPJOB
+# bplog: FALSE; bpthreshold: INFO; bpstopOnError: TRUE
+# bpRNGseed: ; bptimeout: NA; bpprogressbar: FALSE
+# bpexportglobals: TRUE; bpexportvariables: TRUE; bpforceGC: FALSE
+# bpfallback: TRUE
+# bplogdir: NA
+# bpresultdir: NA
+# cluster type: SOCK
+
+
+# data("mac_anno")
 palette_scp(palette = "ov_palette")
 ov_palette =c('#A499CC','#5E4D9A',
                       '#1F577B',
@@ -56,11 +70,9 @@ ov_palette =c('#A499CC','#5E4D9A',
 # palette_list[["ov_palette"]]=ov_palette
 # save(palette_list,file="~/scPDtools/SCP-main/R/sysdata.rda")
 
-# 理解一下findmarkers,findallmarkes,FindConservedMarkers
-# 注意ident.2一般为用于比较的组，none就是其他剩下的
-# b.interferon.response <- FindMarkers(immune.combined, ident.1 = "B_STIM", ident.2 = "B_CTRL", verbose = FALSE)
-# nk.markers <- FindConservedMarkers(immune.combined, ident.1 = 6, grouping.var = "stim", verbose = FALSE)
 
+
+data("mac_menstrual")
 # mac_scp = NormalizeData(mac_scp)
 mac_scp@meta.data$CellType = mac_scp@meta.data$`cell type`
 mac_scp@meta.data$Binary_Stage <- mac_scp@meta.data$`Binary Stage`
@@ -135,25 +147,29 @@ print(ht$plot)
 
 
 # 2. findmarkers
-# ## Seurat的findallmarkers
-# markers = FindAllMarkers(mac_scp)
-# markers$group1 = markers$cluster
-# mac_scp@tools$DEtest_CellType$AllMarkers_seurat = markers
+## Seurat的findallmarkers
+markers = FindAllMarkers(mac_scp)
+markers$group1 = markers$cluster
+mac_scp@tools$DEtest_CellType$AllMarkers_seurat = markers
 
 ## findmarker一个个去取
+# 理解一下findmarkers,findallmarkes,FindConservedMarkers
+# 注意ident.2一般为用于比较的组，none就是其他剩下的
+# b.interferon.response <- FindMarkers(immune.combined, ident.1 = "B_STIM", ident.2 = "B_CTRL", verbose = FALSE)
+# nk.markers <- FindConservedMarkers(immune.combined, ident.1 = 6, grouping.var = "stim", verbose = FALSE)
+library(stats)
 mac_scp <- RunDEtest(srt = mac_scp,
                           group_by = "CellType",
                           fc.threshold = 1,
                           only.pos = FALSE,
                           BPPARAM = BiocParallel::bpparam())
-# palettes
-# source("R/utils.R")
-#
-# VolcanoPlot(srt = mac_scp, group_by = "CellType",
-#             test.use = "seurat",
-#             DE_threshold = "avg_log2FC > 0.2 & p_val_adj < 0.05",
-#             palette = "RdBu",
-#             palcolor = NULL)
+
+# visualization
+VolcanoPlot(srt = mac_scp, group_by = "CellType",
+            test.use = "seurat",
+            DE_threshold = "avg_log2FC > 0.2 & p_val_adj < 0.05",
+            palette = "RdBu",
+            palcolor = NULL)
 
 VolcanoPlot(srt = mac_scp, group_by = "CellType",
                         test.use = "wilcox",
@@ -207,7 +223,7 @@ EnrichmentPlot(
   srt = mac_scp,
   db = c("MSigDB"),
   group_by = "CellType",
-  group_use = c("FOLR2+ Mac" ,"SPARCL1+ Mac" ,   "SPP1+ Mac" ),
+  group_use = c("FOLR2+ Mac" ,"SPARCL1+ Mac" ),# ,   "SPP1+ Mac"
   plot_type = "bar",
   topTerm = 10,
   padjustCutoff = 1
@@ -219,26 +235,30 @@ EnrichmentPlot(
 )
 
 # slingshot
-mac_scp <- RunSlingshot(srt = mac_scp, group.by = "leiden_res1", reduction = "UMAP")
-FeatureDimPlot(mac_scp, features = paste0("Lineage", 1:3), reduction = "UMAP", theme_use = "theme_blank")
-CellDimPlot(mac_scp, group.by = "SubCellType", reduction = "UMAP", lineages = paste0("Lineage", 1:3), lineages_span = 0.1)
+mac_scp <- RunSlingshot(srt = mac_scp, group.by = "CellType", reduction = "UMAP")
+# FeatureDimPlot(mac_scp, features = paste0("Lineage", 1:3), reduction = "UMAP", theme_use = "theme_blank")
+FeatureDimPlot(mac_scp, features = c("Lineage1","palantir_pseudotime","palantir_entropy"),
+               reduction = "UMAP", theme_use = "theme_blank",pt.size = 3)
+CellDimPlot(mac_scp, group.by = "CellType", reduction = "UMAP",
+            lineages = c("Lineage1","palantir_pseudotime","palantir_entropy"),
+            lineages_span = 1)
 
-mac_scp <- RunDynamicFeatures(srt = mac_scp, lineages = c("Lineage1", "Lineage2","Lineage3"), n_candidates = 200)
+mac_scp <- RunDynamicFeatures(srt = mac_scp, lineages = c("Lineage1","palantir_pseudotime"), n_candidates = 200)
 ht <- DynamicHeatmap(
   srt = mac_scp,
-  lineages = c("Lineage1", "Lineage2"),
+  lineages = c("Lineage1","palantir_pseudotime"),
   use_fitted = TRUE, n_split = 6,
-  reverse_ht = "Lineage1",
-  species = "Mus_musculus",
+  reverse_ht = "palantir_pseudotime",
+  species = "Homo_sapiens",
   db = "MSigDB",
   anno_terms = TRUE,
   anno_keys = TRUE,
   anno_features = TRUE,
   heatmap_palette = "RdPu",
-  cell_annotation = "SubCellType",
-  separate_annotation = list("SubCellType", c("Nnat", "Irx1")),
-  separate_annotation_palette = c("Paired", "Set1"),
-  # feature_annotation = c("TF", "CSPA"),
+  cell_annotation = "CellType",
+  # separate_annotation = list("CellType", c("SPP1+ Mac", "FOLR2+ Mac" )),
+  # separate_annotation_palette = c("Paired", "Set1"),
+  feature_annotation = c("TF", "CSPA"),
   feature_annotation_palcolor = list(c("gold", "steelblue"), c("forestgreen")),
   pseudotime_label = 25, pseudotime_label_color = "red",
   height = 5, width = 2
