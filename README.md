@@ -129,6 +129,7 @@ print(ht$plot)
 - Seurat的操作比较简单，因为`FindMarker()`后自身生成的就是一个数据框，但scanpy的`sc.tl.rank_genes_groups()`就没有那么用户友好了
 
   我们先来看一下两者实现方式的区别
+  
   ```R
 library(Seurat)
 library(ggplot2)
