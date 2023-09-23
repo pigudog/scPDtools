@@ -130,7 +130,7 @@ print(ht$plot)
 
   我们先来看一下两者实现方式的区别
   
-  ```R
+```r
 library(Seurat)
 library(ggplot2)
 library(dplyr)
@@ -140,9 +140,7 @@ top5 <- deg %>% group_by(cluster) %>% slice_max(order_by = avg_log2FC,n = 5) #�
 
 mark <- unique(top5$gene) #当然，这里可以是自己选的markers，来自背景知识的细胞标志物
 p=DotPlot(kc,features = marker)
-p
 
-# 上面已经绘制完成了，下面这步只是纯粹地气泡图美化（可选）
 p+ggtitle('there is the title')+theme(axis.text.x = element_text(angle = 45, hjust = 1,size = 10),#x轴标识
                                       axis.text.y = element_text(size = 10),#y轴标识
                                       legend.text = element_text(size= 10),legend.title= element_text(size= 10),#设置legend
