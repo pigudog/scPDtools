@@ -18,16 +18,6 @@
                 "source": false
               }
             }
-          },
-          {
-            "id": "3370d126924b51d5",
-            "type": "leaf",
-            "state": {
-              "type": "image",
-              "state": {
-                "file": "README/Pasted image 20230922144615.png"
-              }
-            }
           }
         ]
       }
@@ -79,7 +69,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "a37f2fed9aba232a",
@@ -158,7 +149,11 @@
   },
   "active": "d3a1c30dc49339a9",
   "lastOpenFiles": [
-    "README/Pasted image 20230922144615.png",
-    "README.md"
+    "README/Pasted image 20230924120754.png",
+    "README.md",
+    "README/Pasted image 20230924120244.png",
+    "README/Pasted image 20230924120103.png",
+    "README/Pasted image 20230924114443.png",
+    "README/Pasted image 20230922144615.png"
   ]
 }

@@ -157,7 +157,6 @@ mac_scp@tools$DEtest_CellType$AllMarkers_seurat = markers
 # 注意ident.2一般为用于比较的组，none就是其他剩下的
 # b.interferon.response <- FindMarkers(immune.combined, ident.1 = "B_STIM", ident.2 = "B_CTRL", verbose = FALSE)
 # nk.markers <- FindConservedMarkers(immune.combined, ident.1 = 6, grouping.var = "stim", verbose = FALSE)
-library(stats)
 mac_scp <- RunDEtest(srt = mac_scp,
                           group_by = "CellType",
                           fc.threshold = 1,
@@ -233,6 +232,15 @@ EnrichmentPlot(
   srt = mac_scp, group_by = "CellType", group_use = c("FOLR2+ Mac" ,"SPARCL1+ Mac" , "SPP1+ Mac" ),
   plot_type = "bar"
 )
+
+# GSEA
+# mac_scp <- RunGSEA(
+#   srt = mac_scp, group_by = "CellType", db = "GO_BP", species = "Homo_sapiens",
+#   DE_threshold = "p_val_adj < 0.05"
+# )
+# GSEAPlot(srt = mac_scp, group_by = "CellType", group_use = "SPP1+ Mac", id_use = "GO:0007186")
+#
+
 
 # slingshot
 mac_scp <- RunSlingshot(srt = mac_scp, group.by = "CellType", reduction = "UMAP")

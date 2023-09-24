@@ -1,10 +1,34 @@
-# DOWNLOAD
+# scPDtools: A Single-Cell Pipeline with R
+scPDtools provides several comprehensive set of tools for visulization to assist python in single-cell analysis
+
+The package includes the following facilities
+- High-quality data visualization methods.
+- Differntial gene expression analysis
+- Compositional analysis
+- Gene set enrichment and pathway analysis
+- Some R tools in inferring trajectories and Visulization
+
+The functions in the SCP package are all developed around the [Seurat object](https://github.com/mojaveazure/seurat-object) and are compatible with other Seurat functions.
+- If you only have data in the form of AnnData, you can refer to `./step0.R` for conversion
+
+scPDtools refers to the following packages
+- [SCP](https://github.com/zhanghao-njmu/SCP)
+- [ClusterGVis](www.github.com/junjunlab/ClusterGVis)
+## R version requirement
+- R >= 4.1.0
+
+## Installation in the global R environment
+You can install the latest version of scPDtools from [GitHub](https://github.com/zhanghao-njmu/SCP) with:
 ```R
+if (!require("devtools", quietly = TRUE)) {
+  install.packages("devtools")
+}
 devtools::install_github("pigudog/scPDtools")
 ```
 
 # 1. Visualization
-我们以windows运行为例
+Let's take windows running as an example
+- We set the number of parallel processes to 8
 ```r
 library(scPDtools)
 library(Seurat)
@@ -30,7 +54,8 @@ mac_scp@meta.data$Binary_Stage <- mac_scp@meta.data$`Binary Stage`
 Idents(mac_scp) = mac_scp@meta.data$CellType
 ```
 
-我们在内部内置了名为`ov_pallette`的 pallette
+We have built-in pallette called 'ov_pallette'
+- To correspond to our pallette used in python
 ```r
 ######################################################
 # color主要是使用RdBu和RdPu和ov_pallette
@@ -45,8 +70,9 @@ CellDimPlot(
   subtitle = "celltype and stage"
 )
 ```
+![](README/Pasted%20image%2020230924114443.png)
 
-这个显示成分的函数我很喜欢
+We can set the 'stat.by' parameter to achieve the composition calculation, which can more intuitively see the cell composition in different periods
 ```R
 ## stage and celldimplot
 CellDimPlot(
@@ -73,6 +99,9 @@ FeatureDimPlot(
   palette = "RdBu",pt.size = 3
 
 )
+```
+![](README/Pasted%20image%2020230924120103.png)
+```
 FeatureDimPlot(
   srt = mac_scp, features = c("FOLR2", "SPARCL1", "SPP1", "FCN1"),
   compare_features = TRUE,
@@ -84,8 +113,9 @@ FeatureDimPlot(
   palette = "ov_palette",
 )
 ```
+![](README/Pasted%20image%2020230924120244.png)
 
-我比较喜欢这个`GroupHeatmap()`函数
+I prefer the 'GroupHeatmap()' function
 ```r
 ## groupheatmap!!
 library(dplyr)
@@ -112,83 +142,16 @@ print(ht$plot)
 
 # 2. differntial expression analysis
 ## RunDEtest
-`RunDEtest`
-- 改代码位于`R/SCP-analysis`
-
-我们首先要清楚`lognormalize`的概念：
-- `LogNormalize`: Feature counts for each cell are divided by the total counts for that cell and multiplied by the `scale.factor` (默认是10000). This is then natural-log transformed using `log1p`
-- 也就是说seurat中的常规归一化使用的也是移位对数化，而scanpy中的处理吧`scale.factor`设置为$50\times10^4$, 这也是为什么在`sc.pp.normalize`之后，count的最大值常常会增大。同时也显示了我们可以直接使用anndata数据进行我们的differential gene的查找
-	- 但是不同的不同的值会使得过度离散值$\alpha$发生改变，$\alpha$描述了数据集中存在比期望更大的变异性，这也很好理解，比如两个值分别是1和3，假设一个cell的`total_umi`=10000，假设log2，那么变化之后1和2或者5.7和7.2， L越大，基因的差距变小，也可以结合$log(1+x)$函数理解
-	- 移位对数是一种快速归一化技术，优于其他揭示数据集潜在结构的方法（特别是在进行主成分分析时），并且有利于方差的稳定性，以进行后续的降维和差异表达基因的识别
-- $f(y)=log(\frac{y}{s}+y_0)$
-	- 其中y是原始的计数，s是尺寸因子，$y_0$是伪计数，细胞的尺寸因子=>$s_c=\frac{\sum_g{y_{gc}}}{L}$
-	- L等用于`scale.factor`
-
-其次我们要搞清楚differential gene 查找的方法的区别和分别使用方式
-- 单细胞数据分析在进行完细胞自聚类或者细胞类型注释后，一般需要对查到的差异基因可视化，用来显示基因和细胞群的相关性，进行后续分析。当然Seurat和scanpy本身可视化的方式有非常多，例如feature plot, violin plot, dot plot等，但是问题在于差异基因分析后，**如何快速将每个细胞簇所对应的top deg汇总**，然后再对接函数绘制成图像。  
-- Seurat的操作比较简单，因为`FindMarker()`后自身生成的就是一个数据框，但scanpy的`sc.tl.rank_genes_groups()`就没有那么用户友好了
-
-  我们先来看一下两者实现方式的区别
-  
-```r
-library(Seurat)
-library(ggplot2)
-library(dplyr)
-
-deg<-FindAllMarker(data) #首先差异基因分析获取每个细胞簇的deg
-top5 <- deg %>% group_by(cluster) %>% slice_max(order_by = avg_log2FC,n = 5) #提取top差异基因，这里n=5代表top5
-
-mark <- unique(top5$gene) #当然，这里可以是自己选的markers，来自背景知识的细胞标志物
-p=DotPlot(kc,features = marker)
-
-p+ggtitle('there is the title')+theme(axis.text.x = element_text(angle = 45, hjust = 1,size = 10),#x轴标识
-                                      axis.text.y = element_text(size = 10),#y轴标识
-                                      legend.text = element_text(size= 10),legend.title= element_text(size= 10),#设置legend
-                                      plot.title = element_text(hjust = 0.5,size = 12))+#设置标题居中
-                                scale_colour_gradientn(colours = viridis::viridis(20))#修改成为CNS配色
-```
-
-```python
-import scanpy as sc
-import pandas as pd
-import numpy as np
-
-# find all degs
-sc.tl.rank_genes_groups(adata, groupby='leiden', method='t-test')
-celltype=adata.obs['leiden'].unique().tolist() #把所有细胞簇种类拿出来
-deg=sc.get.rank_genes_groups_df(adata,group=celltype) #把所有细胞簇对应的deg拿出来
-deg.to_csv('./spGCN_deg.CSV') #存储备份
-
-top=deg.groupby('group') 
-top5=[] #同样以top5举例
-for i in range(len(celltype)): #分群提取top5
-    tmp=top.get_group(str(i))
-    tmp=tmp.sort_values('scores',ascending=False) #按scores排序
-    top5.append(tmp['names'].head(5).tolist())
-#array list 转为 list
-top5=np.array(top5)
-top5=np.reshape(top5,5*len(celltype),'C').tolist() 
-
-# visualization
-sc.pl.dotplot(adata, top5, groupby='leiden')
-plt.savefig('./top5_dotplot.png')
-```
-
-
-在scp中
 ```r
 # 2. findmarkers
-## Seurat的findallmarkers
+## findallmarkers in Seurat
 markers = FindAllMarkers(mac_scp)
 markers$group1 = markers$cluster
 mac_scp@tools$DEtest_CellType$AllMarkers_seurat = markers
 
-## findmarker一个个去取
-# 理解一下findmarkers,findallmarkes,FindConservedMarkers
-# 注意ident.2一般为用于比较的组，none就是其他剩下的
-# b.interferon.response <- FindMarkers(immune.combined, ident.1 = "B_STIM", ident.2 = "B_CTRL", verbose = FALSE)
-# nk.markers <- FindConservedMarkers(immune.combined, ident.1 = 6, grouping.var = "stim", verbose = FALSE)
-library(stats)
+## findmarker is used in RunDEtest
+# you need to understand findmarkers,findallmarkes,FindConservedMarkers
+# note: ident.2 means the group for compare
 mac_scp <- RunDEtest(srt = mac_scp,
                           group_by = "CellType",
                           fc.threshold = 1,
@@ -197,10 +160,6 @@ mac_scp <- RunDEtest(srt = mac_scp,
 ```
 
 ## VolcanoPlot
-`VolcanoPlot`
-- 在`R/SCP-plot.R`
-
-
 ```r
 # visualization
 VolcanoPlot(srt = mac_scp, group_by = "CellType",
@@ -215,27 +174,20 @@ VolcanoPlot(srt = mac_scp, group_by = "CellType",
                         palette = "RdBu",
                         palcolor = NULL)
 ```
-
-![](README/Pasted%20image%2020230922144615.png)
-
-![](README/Pasted%20image%2020230922211814.png)
-
-两次尝试中，都发现findallmarker得到的gene更少，所以建议使用findmarker
+![](README/Pasted%20image%2020230924120754.png)
+`findallmarker` seems to get fewer genes when trying, so it is recommended to use `findmarker` in `DEtest` or adjust the parameters in `findallmarkers`
 
 ## annoation features
 ```r
 DEGs <- mac_scp@tools$DEtest_CellType$AllMarkers_wilcox
 DEGs <- DEGs[with(DEGs, avg_log2FC > 1 & p_val_adj < 0.05), ]
 # Annotate features with transcription factors and surface proteins
-# 这似乎是直接从网上获取信息
-# "TF",
 mac_scp <- AnnotateFeatures(mac_scp,
                                  species = "Homo_sapiens", # Homo_sapiens,Mus_musculus
                                  db = c("TF","CSPA"))
 table(mac_scp@assays[["RNA"]]@meta.features[["CSPA"]])
 table(mac_scp@assays[["RNA"]]@meta.features[["TF"]])
 table(mac_scp@assays[["RNA"]]@meta.features[["highly_variable_genes"]])
-# featureheatmap这个函数最好在你进行enrichment之前使用，否则可能会报错，以及db参数会自动勋章并富集
 ht <- FeatureHeatmap(
   srt = mac_scp, group.by = "CellType",
   features = DEGs$gene,
@@ -284,7 +236,16 @@ EnrichmentPlot(
 
 ![](README/Pasted%20image%2020230923160625.png)
 
-# 4. Dynamic heatmap
+# 5. RunGSEA
+```r
+mac_scp <- RunGSEA(
+  srt = mac_scp, group_by = "CellType", db = "GO_BP", species = "Homo_sapiens",
+  DE_threshold = "p_val_adj < 0.05"
+)
+GSEAPlot(srt = mac_scp, group_by = "CellType", group_use = "SPP1+ Mac", id_use = "GO:0007186")
+```
+
+# 6. Dynamic heatmap
 ```r
 # slingshot
 mac_scp <- RunSlingshot(srt = mac_scp, group.by = "CellType", reduction = "UMAP")
