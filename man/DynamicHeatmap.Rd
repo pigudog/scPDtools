@@ -126,7 +126,7 @@ DynamicHeatmap(
 )
 }
 \arguments{
-\item{db_combine}{}
+\item{split_order}{}
 }
 \description{
 Heatmap plot for dynamic features along lineages

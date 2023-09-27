@@ -102,7 +102,7 @@ CellDimPlot(
 
 ## feature
 FeatureDimPlot(
-  srt = mac_scp, features = c("FOLR2", "SPARCL1", "SPP1", "FCN1"),
+  srt = mac_scp, features = c("FOLR2", "SPARCL1", "SPP1", "TREM2","FCGR3A"),
   reduction = "UMAP", theme_use = "theme_blank",
   palette = "RdPu",pt.size = 3
 

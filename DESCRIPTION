@@ -2,7 +2,7 @@ Package: scPDtools
 Type: Package
 Title: Single Cell Pipeline with R
 Version: 0.1.0
-Author: pigudogzyy
+Author: person('Yangyang', 'Zhang', email='pigudogzyy@gamil.com')
 Maintainer: pigudogzyy <pigudogzyy@gmail.com>
 Description: An Single-Cell Pipeline designed to facilitate comprehensive analysis and exploration of single-cell data with R (A truncated and integrated version)
 License: GPL (>= 3)
@@ -103,6 +103,9 @@ Suggests:
     testthat (>= 3.0.0),
     UCell,
     umap
+SystemRequirements:
+    anndata,
+    loompy
 LinkingTo: Rcpp
 RoxygenNote: 7.2.3
 Config/testthat/edition: 1

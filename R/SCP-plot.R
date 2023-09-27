@@ -10951,6 +10951,12 @@ CellCorHeatmap <- function(srt_query, srt_ref = NULL, bulk_ref = NULL,
 #' @param limits
 #' @param raster_by_magick
 #' @param db_combine
+#' @param num_intersections
+#' @param cell_bins
+#' @param legend_title
+#' @param row_title
+#' @param column_title
+#' @param split_order
 #'
 #' @examples
 #' data("pancreas_sub")
@@ -13875,6 +13881,15 @@ GSEAPlot <- function(srt, db = "GO_BP", group_by = NULL, test.use = "wilcox", re
   }
 }
 
+#' Title
+#'
+#' @param object
+#' @param id_use
+#'
+#' @return
+#' @export
+#'
+#' @examples
 gsInfo <- function(object, id_use) {
   geneList <- object@geneList
   if (is.numeric(id_use)) {
@@ -13900,6 +13915,16 @@ gsInfo <- function(object, id_use) {
   return(df)
 }
 
+#' Title
+#'
+#' @param geneList
+#' @param geneSet
+#' @param exponent
+#'
+#' @return
+#' @export
+#'
+#' @examples
 gseaScores <- function(geneList, geneSet, exponent = 1) {
   geneSet <- intersect(geneSet, names(geneList))
   N <- length(geneList)
@@ -13926,6 +13951,11 @@ gseaScores <- function(geneList, geneSet, exponent = 1) {
   return(df)
 }
 
+#' @param x
+#'
+#' @param guides
+#' @param BPPARAM
+#'
 #' @importFrom ggplot2 ggplot_build ggplot_gtable panel_rows panel_cols wrap_dims
 #' @importFrom gtable gtable
 #' @importFrom grid unit unit.pmax is.unit
@@ -14027,6 +14057,11 @@ build_patchwork <- function(x, guides = "auto", BPPARAM = BiocParallel::SerialPa
   gt_new
 }
 
+#' @param x
+#'
+#' @param BPPARAM
+#' @param ...
+#'
 #' @importFrom utils modifyList
 patchworkGrob <- function(x, BPPARAM = BiocParallel::SerialParam(), ...) {
   annotation <- modifyList(patchwork:::default_annotation, x$patches$annotation[!vapply(x$patches$annotation, is.null, logical(1))])
@@ -14038,6 +14073,10 @@ patchworkGrob <- function(x, BPPARAM = BiocParallel::SerialParam(), ...) {
   gtable
 }
 
+#' @param plot
+#'
+#' @param ...
+#'
 #' @importFrom gridGraphics echoGrob
 #' @importFrom grid grobTree
 #' @importFrom ggplot2 ggplotGrob
@@ -14055,6 +14094,10 @@ as_grob <- function(plot, ...) {
   }
 }
 
+#' @param plot
+#'
+#' @param ...
+#'
 #' @importFrom grid unit
 #' @importFrom gtable gtable_col
 as_gtable <- function(plot, ...) {
@@ -14076,6 +14119,14 @@ as_gtable <- function(plot, ...) {
   }
 }
 
+#' Title
+#'
+#' @param plot
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_legend <- function(plot) {
   plot <- as_gtable(plot)
   grob_names <- plot$layout$name
@@ -14086,6 +14137,13 @@ get_legend <- function(plot) {
   return(matched_grobs)
 }
 
+#' @param gtable
+#'
+#' @param grob
+#' @param position
+#' @param space
+#' @param clip
+#'
 #' @importFrom grid is.grob grobWidth grobHeight
 #' @importFrom gtable is.gtable gtable_add_rows gtable_add_cols gtable_add_grob
 add_grob <- function(gtable, grob, position = c("top", "bottom", "left", "right", "none"), space = NULL, clip = "on") {
