@@ -13,7 +13,7 @@
 #'
 #' @return Dataframe
 .regularise_df <- function(df, drop_single_values = TRUE) {
-  # The. Symbol is just a common symbol in common variables, but some functions use.. Provides special uses for writing or referencing, 
+  # The. Symbol is just a common symbol in common variables, but some functions use.. Provides special uses for writing or referencing,
   # or as a character separating a method from a class in S3 systems
   if (ncol(df) == 0) df[["name"]] <- rownames(df)
   if (drop_single_values) {
@@ -48,6 +48,7 @@
 #'
 #' @import reticulate
 #' @import Matrix
+#' @export
 seurat2anndata <- function(obj, outFile = NULL, assay = "RNA", main_layer = "data", transfer_layers = NULL, drop_single_values = TRUE) {
   if (!requireNamespace("Seurat")) {
     stop("This function requires the 'Seurat' package.")
@@ -355,11 +356,11 @@ loom2sce <- function(inFile, outFile = NULL, main_layer = NULL, main_layer_name 
 #'
 #' @import reticulate
 #' @import Matrix
-anndata2seurat <- function(inFile, outFile = NULL, 
-                           main_layer = "counts_log1p", 
-                           assay = "RNA", 
-                           use_seurat = FALSE, 
-                           lzf = FALSE, 
+anndata2seurat <- function(inFile, outFile = NULL,
+                           main_layer = "counts_log1p",
+                           assay = "RNA",
+                           use_seurat = FALSE,
+                           lzf = FALSE,
                            target_uns_keys = list()) {
   if (!requireNamespace("Seurat")) {
     stop("This function requires the 'Seurat' package.")
@@ -400,7 +401,7 @@ anndata2seurat <- function(inFile, outFile = NULL,
     # naming the sparse matrix
     colnames(X) <- rownames(obs_df)
     rownames(X) <- rownames(var_df)
-    
+
     # we need to check the matrix in adata.raw if we have
     if (!is.null(reticulate::py_to_r(ad$raw))) {
       raw_var_df <- .var2feature_metadata(ad$raw$var)
@@ -411,7 +412,7 @@ anndata2seurat <- function(inFile, outFile = NULL,
       raw_var_df <- NULL
       raw_X <- NULL
     }
-    
+
     # "counts_lop1p" means we set two layers
     # the layer of counts represent the count, which will replace the raw
     # the layer of log1p represnet the data after lognormalize, which will replace the X
@@ -431,7 +432,7 @@ anndata2seurat <- function(inFile, outFile = NULL,
       assays[[1]] <- Seurat::SetAssayData(assays[[1]], slot = "scale.data", new.data = X)
       message("X -> scale.data; raw.X -> data")
     } else if (main_layer == "data" && !is.null(raw_X)) {
-      # if we set main_layer="data"， we need to insure the number of genes is equal. 
+      # if we set main_layer="data"， we need to insure the number of genes is equal.
       # And we think the data in raw is more original
       if (nrow(X) != nrow(raw_X)) {
         message("Raw layer was found with different number of genes than main layer, resizing X and raw.X to match dimensions")
@@ -463,7 +464,7 @@ anndata2seurat <- function(inFile, outFile = NULL,
     srt <- new("Seurat", assays = assays, project.name = project_name, version = packageVersion("Seurat"))
     Seurat::DefaultAssay(srt) <- assay
     Seurat::Idents(srt) <- project_name
-    
+
     # the obs_df has been modified
     srt@meta.data <- obs_df
     # the following code are trying to extract some embeddings, such as pca, scVI, tsne and umap...
@@ -477,7 +478,7 @@ anndata2seurat <- function(inFile, outFile = NULL,
 
       dim.reducs <- vector(mode = "list", length = length(embeddings))
       # the following code has been modified, we always need to use scVI for integrate
-      # 
+      #
       for (i in seq(length(embeddings))) {
         name <- embed_names[i]
         embed <- embeddings[[name]]
@@ -515,7 +516,7 @@ anndata2seurat <- function(inFile, outFile = NULL,
     srt
     }
 
-  
+
 }
 
 #' Convert AnnData object to monocle3 CDS object

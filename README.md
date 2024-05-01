@@ -2,6 +2,7 @@
 scPDtools provides several comprehensive set of tools for visulization to assist python in single-cell analysis
 
 The package includes the following facilities
+- 
 - High-quality data visualization methods.
 - Differntial gene expression analysis
 - Compositional analysis
@@ -15,7 +16,7 @@ scPDtools refers to the following packages
 - [SCP](https://github.com/zhanghao-njmu/SCP)
 - [ClusterGVis](www.github.com/junjunlab/ClusterGVis)
 ## R version requirement
-- R >= 4.1.0
+- R >= 4.2.0
 
 ## Installation in the global R environment
 You can install the latest version of scPDtools from [GitHub](https://github.com/zhanghao-njmu/SCP) with:
