@@ -149,6 +149,8 @@
   },
   "active": "95abba213a0b719d",
   "lastOpenFiles": [
+    "man/CellRatioPlot.Rd",
+    "R/cellratioplot.R",
     "data/data_M_annotation.rda",
     "data/data_M_annotation.rds",
     "doc/DESCRIPTION",
@@ -158,8 +160,6 @@
     "code_not/combined_immune.rds",
     "code_not/twodisease_immune.rda",
     "code_not/step2_PD_test.R",
-    "code_not/step1_R_package_development.R",
-    "code_not/step0_SCP_download.R",
     "README.md",
     "README/Pasted image 20230924120754.png",
     "README/Pasted image 20230924120244.png",

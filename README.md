@@ -27,7 +27,43 @@ if (!require("devtools", quietly = TRUE)) {
 devtools::install_github("pigudog/scPDtools")
 ```
 
-# 1. Visualization
+```r
+################################################################################
+# 1. Anndata -> Seurat (V4)
+################################################################################
+library(scPDtools)
+
+# AnnData to Seurat
+h5ad_file = './data/data_M_annotation.h5ad'
+convertFormat(h5ad_file, from="anndata", to="seurat",main_layer = "counts_log1p",
+                      outFile='data/data_M_annotation.rds')
+
+
+library(Seurat)
+adata = readRDS("./data/data_M_annotation.rds")
+
+save(adata,file="./data/data_M_annotation.rda")
+
+```
+
+output:
+```
+The legacy packages maptools, rgdal, and rgeos, underpinning the sp package,
+which was just loaded, will retire in October 2023.
+Please refer to R-spatial evolution reports for details, especially
+https://r-spatial.org/r/2023/05/15/evolution4.html.
+It may be desirable to make the sf package available;
+package maintainers should consider adding sf to Suggests:.
+The sp package is now running under evolution status 2
+     (status 2 uses the sf package in place of rgdal)
+layers.`log1p` -> data; layers.`counts` -> counts
+```
+# Intro
+# 1. Anndata -> Seurat (V4)
+
+
+# Old Version
+## 1. Visualization
 Let's take windows running as an example
 - We set the number of parallel processes to 8
 ```r
@@ -141,8 +177,8 @@ print(ht$plot)
 ```
 ![](README/Pasted%20image%2020230923145700.png)
 
-# 2. differntial expression analysis
-## RunDEtest
+## 2. differntial expression analysis
+### RunDEtest
 ```r
 # 2. findmarkers
 ## findallmarkers in Seurat
@@ -160,7 +196,7 @@ mac_scp <- RunDEtest(srt = mac_scp,
                           BPPARAM = BiocParallel::bpparam())
 ```
 
-## VolcanoPlot
+### VolcanoPlot
 ```r
 # visualization
 VolcanoPlot(srt = mac_scp, group_by = "CellType",
@@ -178,7 +214,7 @@ VolcanoPlot(srt = mac_scp, group_by = "CellType",
 ![](README/Pasted%20image%2020230924120754.png)
 `findallmarker` seems to get fewer genes when trying, so it is recommended to use `findmarker` in `DEtest` or adjust the parameters in `findallmarkers`
 
-## annoation features
+### annoation features
 ```r
 DEGs <- mac_scp@tools$DEtest_CellType$AllMarkers_wilcox
 DEGs <- DEGs[with(DEGs, avg_log2FC > 1 & p_val_adj < 0.05), ]
@@ -205,7 +241,7 @@ print(ht$plot)
 ```
 ![](README/Pasted%20image%2020230923160111.png)
 
-# 3. Enrichment 
+## 3. Enrichment 
 ```r
 # enrichment
 mac_scp <- RunEnrichment(
@@ -237,7 +273,7 @@ EnrichmentPlot(
 
 ![](README/Pasted%20image%2020230923160625.png)
 
-# 5. RunGSEA
+## 5. RunGSEA
 ```r
 mac_scp <- RunGSEA(
   srt = mac_scp, group_by = "CellType", db = "GO_BP", species = "Homo_sapiens",
@@ -246,7 +282,7 @@ mac_scp <- RunGSEA(
 GSEAPlot(srt = mac_scp, group_by = "CellType", group_use = "SPP1+ Mac", id_use = "GO:0007186")
 ```
 
-# 6. Dynamic heatmap
+## 6. Dynamic heatmap
 ```r
 # slingshot
 mac_scp <- RunSlingshot(srt = mac_scp, group.by = "CellType", reduction = "UMAP")
