@@ -27,11 +27,11 @@ if (!require("devtools", quietly = TRUE)) {
 }
 devtools::install_github("pigudog/scPDtools")
 ```
-
+# Intro
+## 1. Anndata -> Seurat (V4)
 ```r
-################################################################################
 # 1. Anndata -> Seurat (V4)
-################################################################################
+
 library(scPDtools)
 
 # AnnData to Seurat
@@ -59,8 +59,8 @@ The sp package is now running under evolution status 2
      (status 2 uses the sf package in place of rgdal)
 layers.`log1p` -> data; layers.`counts` -> counts
 ```
-# Intro
-# 1. Anndata -> Seurat (V4)
+
+
 
 
 # Old Version
