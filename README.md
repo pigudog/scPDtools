@@ -15,6 +15,7 @@ The functions in the SCP package are all developed around the [Seurat object](ht
 scPDtools refers to the following packages
 - [SCP](https://github.com/zhanghao-njmu/SCP)
 - [ClusterGVis](www.github.com/junjunlab/ClusterGVis)
+- [sceasy](https://github.com/cellgeni/sceasy/)
 ## R version requirement
 - R >= 4.2.0
 
