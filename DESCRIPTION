@@ -11,8 +11,8 @@ LazyData: True
 LazyDataCompression: xz
 Depends:
     R (>= 4.1.0),
-    reticulate
-    ggplot2
+    reticulate,
+    ggplot2,
     ggalluvial
 Suggests:
     Seurat (>= 3.0.1),
